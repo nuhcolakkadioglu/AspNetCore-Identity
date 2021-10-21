@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using Udemy.Identity.Models;
 
 namespace Udemy.Identity.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class HomeController : Controller
     {
 
@@ -40,9 +42,10 @@ namespace Udemy.Identity.Controllers
         {
             if (ModelState.IsValid)
             {
-                var siginResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, true);
+                var siginResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
                 if (siginResult.Succeeded)
                 {
+                   
                     return RedirectToAction("Index");
                 }
                 else if (siginResult.IsLockedOut)
@@ -57,6 +60,12 @@ namespace Udemy.Identity.Controllers
             }
 
             return View(model);
+        }
+
+        [Authorize]
+        public IActionResult GetUserInfo()
+        {
+            return View();
         }
 
         [HttpPost]

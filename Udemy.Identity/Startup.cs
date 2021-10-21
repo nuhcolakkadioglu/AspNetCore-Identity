@@ -27,6 +27,7 @@ namespace Udemy.Identity
                 opt.Password.RequireLowercase = false;
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequireNonAlphanumeric = false;
+                opt.SignIn.RequireConfirmedEmail = false;
 
             }).AddEntityFrameworkStores<UdemyContext>();
             services.AddDbContext<UdemyContext>(opt =>
@@ -50,10 +51,14 @@ namespace Udemy.Identity
             });
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
             });
+
+
         }
     }
 }
