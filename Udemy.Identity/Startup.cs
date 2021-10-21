@@ -30,6 +30,14 @@ namespace Udemy.Identity
                 opt.SignIn.RequireConfirmedEmail = false;
 
             }).AddEntityFrameworkStores<UdemyContext>();
+            services.ConfigureApplicationCookie(o => {
+                o.Cookie.HttpOnly = true;
+                o.Cookie.SameSite = SameSiteMode.Strict;
+                o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                o.Cookie.Name = "baba";
+                o.LoginPath = new PathString( "/Home/SignIn");
+                o.ExpireTimeSpan = TimeSpan.FromDays(25);
+            });
             services.AddDbContext<UdemyContext>(opt =>
             {
                 opt.UseSqlServer(@"server=(localdb)\MSSQLLocalDB;database=Identity; integrated security=true");

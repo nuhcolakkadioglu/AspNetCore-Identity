@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Udemy.Identity.Entities;
 using Udemy.Identity.Models;
@@ -16,15 +17,18 @@ namespace Udemy.Identity.Controllers
 
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<AppRole> _roleManager;
 
-        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<AppRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         public IActionResult Index()
         {
+
             return View();
         }
 
@@ -45,8 +49,13 @@ namespace Udemy.Identity.Controllers
                 var siginResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
                 if (siginResult.Succeeded)
                 {
-                   
-                    return RedirectToAction("Index");
+                    var user = await _userManager.FindByNameAsync(model.Username);
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("Admin"))
+                        return RedirectToAction("AdminPanel");
+
+                    return RedirectToAction("Panel");
+
                 }
                 else if (siginResult.IsLockedOut)
                 {
@@ -65,6 +74,21 @@ namespace Udemy.Identity.Controllers
         [Authorize]
         public IActionResult GetUserInfo()
         {
+            var username = User.Identity.Name;
+            var role = User.Claims.FirstOrDefault(m => m.Type == ClaimTypes.Role);
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult AdminPanel()
+        {
+
+            return View();
+        }
+        [Authorize(Roles = "Member")]
+        public IActionResult Panel()
+        {
+
             return View();
         }
 
@@ -79,9 +103,18 @@ namespace Udemy.Identity.Controllers
                     Gender = model.Gender,
                     UserName = model.username
                 };
+
                 var identityResult = await _userManager.CreateAsync(user, model.Password);
                 if (identityResult.Succeeded)
                 {
+                    await _roleManager.CreateAsync(new AppRole
+                    {
+                        Name = "Member",
+                        CreatedTime = DateTime.Now
+                    });
+
+                    await _userManager.AddToRoleAsync(user, "Member");
+
                     return RedirectToAction("Index");
                 }
 
