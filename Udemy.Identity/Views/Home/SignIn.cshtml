@@ -1,0 +1,19 @@
+﻿@model UserSignInModel
+
+<form asp-action="SignIn" method="post" class="p-4 w-75 mx-auto shadow">
+    <div class="mb-3">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password"></label>
+        <input type="password" asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password"></span>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Giriş</button>
+    </div>
+    <div class="text-danger mt-2" asp-validation-summary="ModelOnly"></div>
+</form>
