@@ -46,7 +46,7 @@ namespace Udemy.Identity.Controllers
         {
             if (ModelState.IsValid)
             {
-                var siginResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+                var siginResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, true, false);
                 if (siginResult.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(model.Username);
@@ -125,6 +125,12 @@ namespace Udemy.Identity.Controllers
 
             }
             return View(model);
+        }
+
+        public async Task<IActionResult> LogOut()
+        {
+           await _signInManager.SignOutAsync();
+            return RedirectToAction("Index");
         }
     }
 }
